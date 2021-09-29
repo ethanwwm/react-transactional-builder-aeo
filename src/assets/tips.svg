@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="98" height="54" viewBox="0 0 98 54">
+  <g id="Group_6" data-name="Group 6" transform="translate(44.841)">
+    <g id="Rectangle_5" data-name="Rectangle 5" transform="translate(-44.841)" fill="none" stroke="#5165f6" stroke-width="3">
+      <rect width="98" height="54" rx="27" stroke="none"/>
+      <rect x="1.5" y="1.5" width="95" height="51" rx="25.5" fill="none"/>
+    </g>
+    <text id="Tips" transform="translate(4.159 33)" fill="#5165f6" font-size="17" font-family="Manrope-Bold, Manrope" font-weight="700"><tspan x="-17.272" y="0">Tips</tspan></text>
+  </g>
+</svg>

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const StatusBox = ({ emailPreview }) => {
+function StatusBox(emailPreview) {
   if (emailPreview) {
     return (
       <tr>
@@ -357,6 +357,6 @@ const StatusBox = ({ emailPreview }) => {
     </td>
   </tr>`;
   }
-};
+}
 
 export default StatusBox;

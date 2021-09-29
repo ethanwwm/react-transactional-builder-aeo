@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Footer = ({ emailPreview }) => {
+function Footer(emailPreview) {
   if (emailPreview) {
     return (
       <tr>
@@ -91,6 +91,6 @@ const Footer = ({ emailPreview }) => {
     <td height="25" style="height: 25px">&nbsp;</td>
   </tr>`;
   }
-};
+}
 
 export default Footer;

@@ -1,7 +1,7 @@
 import React from 'react';
 import ConvertStyle from '../helpers/convertStyle';
 
-const Logo = ({ emailPreview }) => {
+function Logo(emailPreview) {
   if (emailPreview) {
     return (
       <tr>
@@ -116,6 +116,6 @@ const Logo = ({ emailPreview }) => {
     </tr>
 <!-- END LOGOS -->`;
   }
-};
+}
 
 export default Logo;

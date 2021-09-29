@@ -1,16 +1,27 @@
-import logo from './logo.svg';
 import './App.scss';
 import Logo from './components/logo';
 import StatusBox from './components/statusBox';
 import NeedHelp from './components/needHelp';
-import React from 'react';
-import ReactHtmlParser from 'react-html-parser';
-import ReactDOMServer from 'react-dom/server';
-import * as fs from 'fs';
+import React, { useState } from 'react';
 import PreparingOrder from './components/preparingOrder';
+import Spacer from './components/spacer';
+import Footer from './components/footer';
+import OrderConfirmationStatusBox from './components/orderConfirmationStatusBox';
+import FreeReturnLabel1 from './components/freeReturnLabel1';
+import FreeReturnLabel2 from './components/freeReturnLabel2';
+import logo from './assets/AEO.png';
+import deleteButton from './assets/delete.svg';
+import downloadButton from './assets/download.svg';
+import testButton from './assets/test.svg';
+import tipsButton from './assets/tips.svg';
+const leftComponents = [StatusBox, OrderConfirmationStatusBox, NeedHelp];
+const freeReturnLabels = [FreeReturnLabel1, FreeReturnLabel2];
+const others = [PreparingOrder];
 
-const components = [Logo, StatusBox, NeedHelp, PreparingOrder];
-let compiledEmail = `<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+let compiledEmail = [
+  {
+    id: 0,
+    code: `<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
   <head>
     <meta content="text/html; charset=utf-8" http-equiv="content-type" />
@@ -180,23 +191,29 @@ let compiledEmail = `<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//
         cellspacing="0"
         style="border-collapse: collapse; border-spacing: 0; table-layout: fixed; margin: 0 auto !important; width: 375px"
         width="375"
-      >`;
+      >`,
+  },
+];
 
 function App() {
   const [emailPreview, setEmailPreview] = React.useState([]);
-  let componentTracker = [];
-  const [size, setSize] = React.useState();
-  const [firstRender, setFirstRender] = React.useState(true);
-  const [emailPreviewState, setEmailPreviewState] = React.useState(true);
+  const [deleteElementTrigger, setDeleteElementTrigger] = React.useState();
+  const [counter, setCounter] = useState(1);
 
-  let spacerHTML = (
-    <tr>
-      <td height={size} style={{ height: size + 'px', lineHeight: size + 'px' }}>
-        &nbsp;
-      </td>
-    </tr>
-  );
-  const Spacer = () => {
+  React.useEffect(() => {
+    for (let index = 0; index < emailPreview.length; index++) {
+      if (parseInt(emailPreview[index].key) === deleteElementTrigger) {
+        let temp = emailPreview.filter((component) => parseInt(component.key) !== deleteElementTrigger);
+        console.log(temp);
+
+        setEmailPreview(temp);
+
+        break;
+      }
+    }
+  }, [deleteElementTrigger]);
+
+  const SpacerSelector = () => {
     return (
       <div className="spacer-card">
         <h2>Spacer</h2>
@@ -204,7 +221,7 @@ function App() {
           <div
             className="spacer-selection"
             onClick={() => {
-              setSize('20');
+              addComponent(Spacer, true, '20');
             }}
           >
             <p className="number">20 </p> <p className="px">px</p>
@@ -213,7 +230,7 @@ function App() {
           <div
             className="spacer-selection"
             onClick={() => {
-              setSize('30');
+              addComponent(Spacer, true, '30');
             }}
           >
             <p className="number">30</p> <p className="px">px</p>
@@ -222,7 +239,7 @@ function App() {
           <div
             className="spacer-selection"
             onClick={() => {
-              setSize('40');
+              addComponent(Spacer, true, '40');
             }}
           >
             <p className="number">40</p> <p className="px">px</p>
@@ -232,85 +249,167 @@ function App() {
     );
   };
 
-  React.useEffect(() => {
-    if (!firstRender) {
-      // console.log(size);
-      let temp = [emailPreview];
-      temp.push(spacerHTML);
-      setEmailPreview(temp);
+  function deleteComponent(componentId) {
+    for (let index = 0; index < compiledEmail.length; index++) {
+      if (compiledEmail[index].id === componentId) {
+        compiledEmail.splice(index, 1);
+        break;
+      }
     }
+  }
 
-    setSize('');
+  function addComponent(component, isSpacer = false, spacerSize = null) {
+    console.log(component, isSpacer, spacerSize);
+    let temp = emailPreview;
+    temp.push(
+      <div
+        className="delete-button-div"
+        key={counter}
+        onMouseEnter={() => {
+          let element = document.getElementById('delete-button-' + `${counter}`);
+          element.style.opacity = 1;
+        }}
+        onMouseLeave={() => {
+          let element = document.getElementById('delete-button-' + `${counter}`);
+          element.style.opacity = 0;
+        }}
+      >
+        <div
+          className="delete-button"
+          id={'delete-button-' + `${counter}`}
+          onClick={() => {
+            deleteComponent(counter);
+            setDeleteElementTrigger(counter);
+          }}
+        >
+          <b>Delete</b>
+        </div>
+        {isSpacer ? component(true, spacerSize) : component(true)}
+      </div>
+    );
+    setEmailPreview(temp);
 
-    setFirstRender(false);
-  }, [size]);
+    let newComponentObjectTracker = { id: counter, code: isSpacer ? component(false, spacerSize) : component(false) };
+    compiledEmail.push(newComponentObjectTracker);
+    setCounter(counter + 1);
+  }
 
-  React.useEffect(() => {}, [emailPreview]);
+  const Navbar = () => {
+    let temp = ``;
+
+    return (
+      <div className="navbar-div">
+        <div className="left-logo">
+          <img className="logo" src={logo} alt="" />
+        </div>
+        <div className="right-buttons">
+          <img className="navbar-buttons" src={deleteButton} alt="" />
+          <img className="navbar-buttons" src={tipsButton} alt="" />
+          <img className="navbar-buttons" src={testButton} alt="" />
+          <img
+            className="navbar-buttons"
+            onClick={() => {
+              compiledEmail.forEach((component) => {
+                temp += component.code;
+              });
+
+              temp += `</table>
+              </div>
+            </body>
+          </html>`;
+
+              const element = document.createElement('a');
+              const file = new Blob([temp], { type: 'text/plain' });
+              element.href = URL.createObjectURL(file);
+              element.download = 'myFile.html';
+              document.body.appendChild(element); // Required for this to work in FireFox
+              element.click();
+            }}
+            src={downloadButton}
+            alt=""
+          />
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="App">
-      <div className="card-section">
-        <h2>Components</h2>
-        {/* FOR MULTIPLE COMPONENT RENDERING */}
-        {components.map((Component) => {
-          // console.log(component);
-          return (
+      <Navbar />
+      <div className="content">
+        <div className="card-section">
+          <div className="left">
+            <h2>Logo</h2>
             <div
               className="selection"
               onClick={() => {
-                let temp = [emailPreview];
-                temp.push(<Component emailPreview={true} />);
-                setEmailPreview(temp);
-                console.log(emailPreview);
+                addComponent(Logo);
               }}
             >
-              <div className="component-card">{<Component emailPreview={true} />}</div>
+              <div className="component-card">{Logo(true)}</div>
             </div>
-          );
-        })}
+            <h2>Status Box</h2>
 
-        {/* TESTING FOR LOGO AND VIEW SWITCH */}
-        {/* <div
-          className="selection"
-          onClick={() => {
-            let temp = [emailPreview];
-            temp.push(<Logo emailPreview={true} />);
-            componentTracker.push(<Logo />);
-            setEmailPreview(temp);
-          }}
-        >
-          <div className="component-card">
-            <Logo emailPreview={true} />
+            {leftComponents.map((component) => {
+              return (
+                <div
+                  className="selection"
+                  onClick={() => {
+                    addComponent(component);
+                  }}
+                >
+                  <div className="component-card">{component(true)}</div>
+                </div>
+              );
+            })}
           </div>
-        </div> */}
-        <Spacer />
+          <div className="right">
+            <SpacerSelector />
+
+            <h2>Footer</h2>
+            {
+              <div
+                className="selection"
+                onClick={() => {
+                  addComponent(Footer);
+                }}
+              >
+                <div className="component-card">{Footer(true)}</div>
+              </div>
+            }
+
+            <h2>Free Return Labels</h2>
+            {freeReturnLabels.map((component) => {
+              return (
+                <div
+                  className="selection"
+                  onClick={() => {
+                    addComponent(component);
+                  }}
+                >
+                  <div className="component-card">{component(true)}</div>
+                </div>
+              );
+            })}
+
+            <h2>Others</h2>
+            {others.map((component) => {
+              return (
+                <div
+                  className="selection"
+                  onClick={() => {
+                    addComponent(component);
+                  }}
+                >
+                  <div className="component-card">{component(true)}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="email-preview">{emailPreview}</div>
       </div>
-
-      <div className="email-preview">{emailPreview}</div>
-      <button
-        className="button button_primary"
-        onClick={() => {
-          setEmailPreviewState(false);
-          compiledEmail +=
-            Logo(false) +
-            `</table>
-          </div>
-        </body>
-      </html>`;
-          console.log(emailPreviewState);
-          console.log(compiledEmail);
-          console.log(<Logo emailPreview={false} />);
-
-          const element = document.createElement('a');
-          const file = new Blob([compiledEmail], { type: 'text/plain' });
-          element.href = URL.createObjectURL(file);
-          element.download = 'myFile.html';
-          document.body.appendChild(element); // Required for this to work in FireFox
-          element.click();
-        }}
-      >
-        Export Email
-      </button>
     </div>
   );
 }
