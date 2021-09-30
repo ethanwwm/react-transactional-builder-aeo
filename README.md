@@ -1,5 +1,5 @@
 # React Transactional Builder
-A email transactional builder, aimed at speeding up email development for AEO transactional emails.
+An email transactional builder, aimed at speeding up email development for AEO transactional emails.
 
 # Getting Started
 1. Get permission as a collaborator from Ethan Wong (wonge@ae.com)
