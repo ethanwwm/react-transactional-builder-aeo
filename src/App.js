@@ -14,9 +14,24 @@ import deleteButton from './assets/delete.svg';
 import downloadButton from './assets/download.svg';
 import testButton from './assets/test.svg';
 import tipsButton from './assets/tips.svg';
+import Fade from 'react-reveal/Fade';
+import SectionDivider from './components/sectionDivider';
+import GrayDivider from './components/grayDivider';
+import ProductTile1 from './components/productTile1';
+import BagCheckIcon from './assets/icons/bag-check-outline.svg';
+import MailIcon from './assets/icons/mail-outline.svg';
+import ReturnIcon from './assets/icons/return-up-back-outline.svg';
+import ClockIcon from './assets/icons/time-outline.svg';
+import CarIcon from './assets/icons/car-outline.svg';
+import EarthIcon from './assets/icons/earth-outline.svg';
+import HourglassIcon from './assets/icons/hourglass-outline.svg';
+import CancelledIcon from './assets/icons/close-circle-outline.svg';
+
 const leftComponents = [StatusBox, OrderConfirmationStatusBox, NeedHelp];
 const freeReturnLabels = [FreeReturnLabel1, FreeReturnLabel2];
+const dividers = [SectionDivider, GrayDivider];
 const others = [PreparingOrder];
+const productTiles = [ProductTile1];
 
 let compiledEmail = [
   {
@@ -199,6 +214,8 @@ function App() {
   const [emailPreview, setEmailPreview] = React.useState([]);
   const [deleteElementTrigger, setDeleteElementTrigger] = React.useState();
   const [counter, setCounter] = useState(1);
+  const [showProductLoop, setShowProductLoop] = useState(false);
+  const [customJson, setCustomJson] = useState('');
 
   React.useEffect(() => {
     for (let index = 0; index < emailPreview.length; index++) {
@@ -258,7 +275,7 @@ function App() {
     }
   }
 
-  function addComponent(component, isSpacer = false, spacerSize = null) {
+  function addComponent(component, isSpacer = false, spacerSize = null, loop = null) {
     console.log(component, isSpacer, spacerSize);
     let temp = emailPreview;
     temp.push(
@@ -289,9 +306,15 @@ function App() {
     );
     setEmailPreview(temp);
 
-    let newComponentObjectTracker = { id: counter, code: isSpacer ? component(false, spacerSize) : component(false) };
+    let newComponentObjectTracker = { id: counter, code: isSpacer ? component(false, spacerSize) : component(false), loop: loop ? loop : null };
     compiledEmail.push(newComponentObjectTracker);
     setCounter(counter + 1);
+  }
+
+  function addProductTile(component) {
+    console.log(document.getElementById('product-tile-loop-selection-1').style.opacity);
+    // document.getElementById('product-tile-loop-selection').style.display = 'fixed';
+    // document.getElementById('product-tile-loop-selection').style.opacity = 1;
   }
 
   const Navbar = () => {
@@ -333,8 +356,67 @@ function App() {
     );
   };
 
+  const ProductTileLoopView = () => {
+    React.useEffect(() => {
+      document.getElementById('product-tile-loop-selection-1').style.opacity = 1;
+    }, []);
+
+    let icons = [
+      { icon: ReturnIcon, description: 'Returned' },
+      { icon: ClockIcon, description: 'Delayed' },
+      { icon: MailIcon, description: 'Emailed' },
+      { icon: BagCheckIcon, description: 'RFP' },
+      { icon: HourglassIcon, description: 'Processing' },
+      { icon: EarthIcon, description: 'Shipped' },
+      { icon: CancelledIcon, description: 'Cancelled' },
+      { icon: CarIcon, description: 'Picked Up' },
+    ];
+
+    let temp = [];
+
+    icons.forEach((component) => {
+      temp.push(
+        <div
+          className="selection-tile"
+          onClick={() => {
+            console.log('clicked');
+          }}
+        >
+          <div className="spacer-div">
+            <img src={component.icon} alt="" />
+          </div>
+          <h2>{component.description}</h2>
+        </div>
+      );
+    });
+
+    return (
+      // <Fade>
+      <div className="product-tile-loop-selection" id="product-tile-loop-selection-1">
+        <h1>What bucket is this product tile looping?</h1>
+        {/* <Fade cascade top> */}
+        <div className="selection-area">
+          {temp}
+          <input
+            type="text"
+            name=""
+            value={customJson}
+            onChange={(e) => {
+              console.log(e.target.value);
+              setCustomJson(e.target.value);
+            }}
+            className="custom-json"
+          />
+        </div>
+        {/* </Fade> */}
+      </div>
+      // </Fade>
+    );
+  };
+
   return (
     <div className="App">
+      {showProductLoop ? <ProductTileLoopView /> : <React.Fragment />}
       <Navbar />
       <div className="content">
         <div className="card-section">
@@ -362,7 +444,37 @@ function App() {
                 </div>
               );
             })}
+
+            <h2>Section Dividers</h2>
+            {dividers.map((component) => {
+              return (
+                <div
+                  className="selection"
+                  onClick={() => {
+                    addComponent(component);
+                  }}
+                >
+                  <div className="component-card">{component(true)}</div>
+                </div>
+              );
+            })}
+
+            <h2>Product Tiles</h2>
+            {productTiles.map((component) => {
+              return (
+                <div
+                  className="selection"
+                  onClick={() => {
+                    // addProductTile(component);
+                    setShowProductLoop(true);
+                  }}
+                >
+                  <div className="component-card">{component(true)}</div>
+                </div>
+              );
+            })}
           </div>
+
           <div className="right">
             <SpacerSelector />
 

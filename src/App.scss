@@ -4,6 +4,81 @@ body {
   padding: 0;
 }
 
+.product-tile-loop-selection {
+  position: fixed;
+  background-color: white;
+  z-index: 121;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: #f2f1f5;
+  transition: 0.35s;
+  // display: none;
+  opacity: 0;
+
+  .selection-area {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    width: 720px;
+
+    .selection-tile {
+      height: 150px;
+      width: 150px;
+      background-color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 20px;
+      margin: 15px;
+      transition: 0.25s !important;
+      font-weight: 500;
+      flex-direction: column;
+
+      .spacer-div {
+        height: 38px;
+        width: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    .custom-json {
+      width: 100%;
+      margin: 15px;
+      border: none;
+      height: 65px;
+      border-radius: 20px;
+      font-size: 20px;
+      text-align: center;
+      transition: 0.25s;
+    }
+
+    .selection-tile:hover {
+      transform: scale(1.05) !important;
+      cursor: pointer;
+    }
+  }
+
+  h1 {
+    font-weight: 300;
+    margin-bottom: 50px;
+  }
+
+  h2 {
+    margin-bottom: 0;
+    font-weight: 500;
+  }
+}
+
 .navbar-div {
   z-index: 100;
   left: 0;
@@ -93,12 +168,14 @@ body {
 
 .selection {
   height: fit-content;
+  cursor: pointer;
 }
 
 .component-card {
   margin: 15px 20px;
   padding: 20px;
   border-radius: 10px;
+
   /* min-height: 300px;
   min-width: 300px; */
   display: flex;
