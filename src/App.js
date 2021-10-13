@@ -215,7 +215,6 @@ function App() {
   const [deleteElementTrigger, setDeleteElementTrigger] = React.useState();
   const [counter, setCounter] = useState(1);
   const [showProductLoop, setShowProductLoop] = useState(false);
-  const [customJson, setCustomJson] = useState('');
 
   React.useEffect(() => {
     for (let index = 0; index < emailPreview.length; index++) {
@@ -231,35 +230,59 @@ function App() {
   }, [deleteElementTrigger]);
 
   const SpacerSelector = () => {
+    const [customSpacer, setCustomSpacer] = useState('');
+
     return (
       <div className="spacer-card">
         <h2>Spacer</h2>
         <div className="card">
-          <div
-            className="spacer-selection"
-            onClick={() => {
-              addComponent(Spacer, true, '20');
-            }}
-          >
-            <p className="number">20 </p> <p className="px">px</p>
-          </div>
+          <div className="quick-select">
+            <div
+              className="spacer-selection"
+              onClick={() => {
+                addComponent(Spacer, true, '20');
+              }}
+            >
+              <p className="number">20 </p> <p className="px">px</p>
+            </div>
 
-          <div
-            className="spacer-selection"
-            onClick={() => {
-              addComponent(Spacer, true, '30');
-            }}
-          >
-            <p className="number">30</p> <p className="px">px</p>
-          </div>
+            <div
+              className="spacer-selection"
+              onClick={() => {
+                addComponent(Spacer, true, '30');
+              }}
+            >
+              <p className="number">30</p> <p className="px">px</p>
+            </div>
 
-          <div
-            className="spacer-selection"
-            onClick={() => {
-              addComponent(Spacer, true, '40');
-            }}
-          >
-            <p className="number">40</p> <p className="px">px</p>
+            <div
+              className="spacer-selection"
+              onClick={() => {
+                addComponent(Spacer, true, '40');
+              }}
+            >
+              <p className="number">40</p> <p className="px">px</p>
+            </div>
+          </div>
+          <div className="custom-spacer">
+            <input
+              type="text"
+              name=""
+              placeholder="1, 2, etc."
+              value={customSpacer}
+              onChange={(e) => {
+                setCustomSpacer(e.target.value);
+              }}
+              className="custom-spacer-input"
+            />
+            <div
+              className="add-spacer-button"
+              onClick={() => {
+                addComponent(Spacer, true, customSpacer);
+              }}
+            >
+              Add
+            </div>
           </div>
         </div>
       </div>
@@ -333,7 +356,13 @@ function App() {
             className="navbar-buttons"
             onClick={() => {
               compiledEmail.forEach((component) => {
-                temp += component.code;
+                if (component.loop) {
+                  temp += component.loop;
+                  temp += component.code;
+                  temp += `{{/each}}`;
+                } else {
+                  temp += component.code;
+                }
               });
 
               temp += `</table>
@@ -357,19 +386,42 @@ function App() {
   };
 
   const ProductTileLoopView = () => {
+    const [customJson, setCustomJson] = useState('');
+
+    // document.addEventListener(
+    //   'keydown',
+    //   onKeyPress((e) => {
+    //     console.log(e);
+    //   }),
+    //   false
+    // );
+
+    const closeJsonSelection = React.useCallback((event) => {
+      if (event.keyCode === 27) {
+        if (document.getElementById('product-tile-loop-selection-1')) {
+          document.getElementById('product-tile-loop-selection-1').style.opacity = 0;
+        }
+
+        setTimeout(() => {
+          setShowProductLoop(false);
+        }, 350);
+      }
+    }, []);
+
     React.useEffect(() => {
       document.getElementById('product-tile-loop-selection-1').style.opacity = 1;
+      document.addEventListener('keydown', closeJsonSelection, false);
     }, []);
 
     let icons = [
-      { icon: ReturnIcon, description: 'Returned' },
-      { icon: ClockIcon, description: 'Delayed' },
-      { icon: MailIcon, description: 'Emailed' },
-      { icon: BagCheckIcon, description: 'RFP' },
-      { icon: HourglassIcon, description: 'Processing' },
-      { icon: EarthIcon, description: 'Shipped' },
-      { icon: CancelledIcon, description: 'Cancelled' },
-      { icon: CarIcon, description: 'Picked Up' },
+      { icon: ReturnIcon, description: 'Returned', code: `` },
+      { icon: ClockIcon, description: 'Delayed', code: `{{#each notificationData.order.shippingGroups.delayed.items.item}}` },
+      { icon: MailIcon, description: 'Emailed', code: `{{#each notificationData.order.shippingGroups.emailed.items.item}}` },
+      { icon: BagCheckIcon, description: 'RFP', code: `{{#each notificationData.order.shippingGroups.readyForPickUp.items.item}}` },
+      { icon: HourglassIcon, description: 'Pending', code: `{{#each notificationData.order.shippingGroups.pending.items.item}}` },
+      { icon: EarthIcon, description: 'Shipped', code: `{{#each notificationData.order.shippingGroups.shipped.items.item}}` },
+      { icon: CancelledIcon, description: 'Cancelled', code: `{{#each notificationData.order.shippingGroups.cancelled.items.item}}` },
+      { icon: CarIcon, description: 'Picked Up', code: `{{#each notificationData.order.shippingGroups.picked.items.item}}` },
     ];
 
     let temp = [];
@@ -379,7 +431,13 @@ function App() {
         <div
           className="selection-tile"
           onClick={() => {
-            console.log('clicked');
+            // let loopCode = `{{#each ` + component.code;
+
+            // console.log(component.code);
+            document.getElementById('product-tile-loop-selection-1').style.opacity = 0;
+            setShowProductLoop(false);
+
+            addComponent(ProductTile1, false, null, component.code);
           }}
         >
           <div className="spacer-div">
@@ -391,32 +449,62 @@ function App() {
     });
 
     return (
-      // <Fade>
       <div className="product-tile-loop-selection" id="product-tile-loop-selection-1">
         <h1>What bucket is this product tile looping?</h1>
-        {/* <Fade cascade top> */}
-        <div className="selection-area">
-          {temp}
-          <input
-            type="text"
-            name=""
-            value={customJson}
-            onChange={(e) => {
-              console.log(e.target.value);
-              setCustomJson(e.target.value);
-            }}
-            className="custom-json"
-          />
-        </div>
-        {/* </Fade> */}
+        <Fade cascade top>
+          <div className="selection-area">
+            {temp}
+            <div className="custom-section">
+              <input
+                type="text"
+                name=""
+                placeholder="Others (requires JSON input)"
+                value={customJson}
+                onChange={(e) => {
+                  setCustomJson(e.target.value);
+                }}
+                className="custom-json"
+              />
+              <div
+                className="add-json-button"
+                onClick={() => {
+                  document.getElementById('product-tile-loop-selection-1').style.opacity = 0;
+                  setShowProductLoop(false);
+                  let newHandlebar = `{{#each ` + customJson + '}}';
+
+                  addComponent(ProductTile1, false, null, newHandlebar);
+                }}
+              >
+                Add
+              </div>
+            </div>
+
+            <div
+              className="cancel"
+              onClick={() => {
+                document.getElementById('product-tile-loop-selection-1').style.opacity = 0;
+
+                setTimeout(() => {
+                  setShowProductLoop(false);
+                }, 350);
+              }}
+            >
+              <h2>Cancel</h2>
+            </div>
+          </div>
+        </Fade>
       </div>
-      // </Fade>
     );
   };
 
   return (
     <div className="App">
       {showProductLoop ? <ProductTileLoopView /> : <React.Fragment />}
+      {/* <Fade when={showProductLoop}>
+        <ProductTileLoopView />
+      </Fade> */}
+      {/* {document.addEventListener('keydown', onKeyPress(this.event), false)} */}
+
       <Navbar />
       <div className="content">
         <div className="card-section">
